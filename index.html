@@ -1,156 +1,265 @@
+</body>
+</html>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AVERON</title>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Orbitron:wght@700&family=Raleway:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Worth Score</title>
+  <style>
+    :root {
+      --bg: #f8f9fa;
+      --text: #212529;
+      --card: #ffffff;
+      --accent: #0d6efd;
+      --accent-hover: #0b5ed7;
+      --gray: #6c757d;
+    }
+    [data-theme="dark"] {
+      --bg: #121212;
+      --text: #e0e0e0;
+      --card: #1e1e1e;
+      --accent: #4dabf7;
+      --accent-hover: #3395ff;
+      --gray: #adb5bd;
+    }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: background 0.3s, color 0.3s;
+    }
+    .container {
+      text-align: center;
+      background: var(--card);
+      padding: 2.5rem 2rem;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      max-width: 400px;
+      width: 90%;
+      transition: background 0.3s;
+    }
+    h1 {
+      margin: 0 0 1rem;
+      font-size: 2.2rem;
+      color: var(--accent);
+    }
+    #score {
+      font-size: 5rem;
+      font-weight: bold;
+      margin: 0.5rem 0;
+      min-width: 150px;
+      display: inline-block;
+    }
+    #remark {
+      font-size: 1.4rem;
+      font-weight: bold;
+      min-height: 4rem;
+      margin: 1rem 0 2rem;
+      padding: 0 1rem;
+      opacity: 1;
+      transition: opacity 0.6s ease, color 0.4s;
+    }
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.8rem;
+      margin: 1.5rem 0;
+    }
+    button {
+      padding: 0.8rem 1.2rem;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      min-width: 70px;
+    }
+    .plus { background: #198754; color: white; }
+    .plus:hover { background: #157347; }
+    .minus { background: #dc3545; color: white; }
+    .minus:hover { background: #bb2d3b; }
+    .manual-btn { background: var(--accent); color: white; }
+    .manual-btn:hover { background: var(--accent-hover); }
+    .theme-toggle {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      background: none;
+      border: none;
+      font-size: 1.8rem;
+      cursor: pointer;
+      color: var(--gray);
+    }
+    .manual-input {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    input[type="number"] {
+      width: 100px;
+      padding: 0.6rem;
+      font-size: 1.1rem;
+      border: 1px solid var(--gray);
+      border-radius: 8px;
+      background: var(--bg);
+      color: var(--text);
+    }
+  </style>
 </head>
 <body>
-  <!-- Entry Card (Authentication System) -->
-  <div id="entry-card" class="auth-enabled">
-    <div class="entry-card-inner">
-      <h2>Enter Access Code</h2>
-      <input type="text" id="userpass" placeholder="Enter passcode" />
-      <button onclick="validateEntry()">Submit</button>
+
+  <button class="theme-toggle" aria-label="Toggle theme">🌙</button>
+
+  <div class="container">
+    <h1>Worth Score</h1>
+    <div id="score">0</div>
+    <div id="remark"></div>
+
+    <div class="buttons">
+      <button class="plus" data-value="2">+2</button>
+      <button class="plus" data-value="5">+5</button>
+      <button class="plus" data-value="10">+10</button>
+      <button class="plus" data-value="20">+20</button>
+    </div>
+
+    <div class="buttons">
+      <button class="minus" data-value="-2">-2</button>
+      <button class="minus" data-value="-5">-5</button>
+      <button class="minus" data-value="-10">-10</button>
+      <button class="minus" data-value="-20">-20</button>
+    </div>
+
+    <div class="manual-input">
+      <input type="number" id="manualValue" placeholder="Enter value" />
+      <button class="manual-btn" id="applyManual">Apply</button>
     </div>
   </div>
 
-  <!-- Main Content -->
-  <div id="main-website">
-    <header>
-      <h1>AVERON</h1>
-    </header>
+  <script>
+    const scoreDisplay = document.getElementById('score');
+    const remarkDisplay = document.getElementById('remark');
+    const manualInput = document.getElementById('manualValue');
+    const applyBtn = document.getElementById('applyManual');
+    const themeToggle = document.querySelector('.theme-toggle');
 
-    <div class="social-buttons">
-      <a href="https://t.me/RsgOblivion" class="social-button telegram-button">
-        <i class="fab fa-telegram-plane"></i> Join Telegram
-      </a>
-      <a href="https://Smart.openinapp.link/Moviehaunt-stream" class="social-button youtube-button">
-        <i class="fab fa-youtube"></i> Subscribe YouTube
-      </a>
-    </div>
+    let score = parseInt(localStorage.getItem('worthScore')) || 0;
+    scoreDisplay.textContent = score;
 
-    <div class="categories">
-      <div class="category">
-        <button class="toggle-button" onclick="toggleSection('sound-effects-table')">Sound Effects</button>
-        <div id="sound-effects-table" class="resource-table">
-          <table>
-            <tr><th>Name</th><th>Action</th></tr>
-            <tr><td>Sound Effect 1</td><td><a href="https://t.me/link1">Get</a></td></tr>
-            <tr><td>Sound Effect 2</td><td><a href="https://t.me/link2">Get</a></td></tr>
-            <tr><td>Sound Effect 3</td><td><a href="https://t.me/link3">Get</a></td></tr>
-          </table>
-        </div>
-      </div>
+    // Remark arrays (random savage & fun)
+    const highRemarks = [
+      "Wah Sintu bhai! Tu toh legend ban gaya! 🔥👑",
+      "Score dekh ke dil khush! Tu baap hai! 😎💰",
+      "King level unlocked! Jealous ho raha hu! 🌟",
+      "Tu toh superstar hai bhai! Keep shining! 🚀"
+    ];
+    const averageRemarks = [
+      "Theek-thaak hai... lekin aur mehnat kar! 💪",
+      "Average vibes... kuch toh kar le yaar! 😏",
+      "Meh, better than nothing... but not enough! 😂",
+      "Tu toh middle class life jee raha hai! Upgrade kar! 🤑"
+    ];
+    const lowRemarks = [
+      "Arre o bewakoof! Negative? Beizzati shuru! 🤡",
+      "Tu toh zero se bhi neeche! Fail ho gaya bhai! 😭",
+      "Sintu, is score ke saath tu toh single hi marega forever! 😜",
+      "Bhai, gym ja, diet kar... warna roast continue! 🔥"
+    ];
+    const brutalRemarks = [
+      "Itna low? Tu toh life ka burden hai! 😂😤",
+      "Score dekh ke hasi aa rahi! Tu pure joke hai! 🤣",
+      "Sintu bhai, road pe bheek mangne ki tayyari kar le! 👻",
+      "Tu toh flop actor hai life mein! Oscar nahi milega! 🎭🔥",
+      "Bhai, is level pe tu toh invisible ho gaya! Koi dekhta bhi nahi! 🫥"
+    ];
 
-      <div class="category">
-        <button class="toggle-button" onclick="toggleSection('video-effects-table')">Video overlays</button>
-        <div id="video-effects-table" class="resource-table">
-          <table>
-            <tr><th>Name</th><th>Action</th></tr>
-            <tr><td>Video Effect 1</td><td><a href="https://t.me/link4">Get</a></td></tr>
-            <tr><td>Video Effect 2</td><td><a href="https://t.me/link5">Get</a></td></tr>
-            <tr><td>Video Effect 3</td><td><a href="https://t.me/link6">Get</a></td></tr>
-          </table>
-        </div>
-      </div>
+    function getRemark(score) {
+      let remarks;
+      let color;
 
-      <div class="category">
-        <button class="toggle-button" onclick="toggleSection('transitions-table')">Image overlays</button>
-        <div id="transitions-table" class="resource-table">
-          <table>
-            <tr><th>Name</th><th>Action</th></tr>
-            <tr><td>Transition 1</td><td><a href="https://t.me/link7">Get</a></td></tr>
-            <tr><td>Transition 2</td><td><a href="https://t.me/link8">Get</a></td></tr>
-            <tr><td>Transition 3</td><td><a href="https://t.me/link9">Get</a></td></tr>
-          </table>
-        </div>
-      </div>
+      if (score >= 100) {
+        remarks = highRemarks;
+        color = '#198754'; // green
+      } else if (score >= 0) {
+        remarks = averageRemarks;
+        color = '#ffc107'; // yellow
+      } else if (score >= -50) {
+        remarks = lowRemarks;
+        color = '#dc3545'; // red
+      } else {
+        remarks = brutalRemarks;
+        color = '#c82333'; // dark red
+      }
 
-      <div class="category">
-        <button class="toggle-button" onclick="toggleSection('presets-table')">My Edits</button>
-        <div id="presets-table" class="resource-table">
-          <table>
-            <tr><th>Name</th><th>Action</th></tr>
-            <tr><td>Preset 1</td><td><a href="https://t.me/link10">Get</a></td></tr>
-            <tr><td>Preset 2</td><td><a href="https://t.me/link11">Get</a></td></tr>
-            <tr><td>Preset 3</td><td><a href="https://t.me/link12">Get</a></td></tr>
-          </table>
-        </div>
-      </div>
+      const randomRemark = remarks[Math.floor(Math.random() * remarks.length)];
+      return { text: randomRemark, color };
+    }
 
-      <div class="category">
-        <button class="toggle-button" onclick="toggleSection('overlays-table')">premium mod Apk's </button>
-        <div id="overlays-table" class="resource-table">
-          <table>
-            <tr><th>Name</th><th>Action</th></tr>
-            <tr><td>Capcut Pro</td><td><a href="https://t.me/RsgAveron/115">Get</a></td></tr>
-            <tr><td>Picsart pro</td><td><a href="https://t.me/RsgAveron/113">Get</a></td></tr>
-            <tr><td>Lightroom Pro</td><td><a href="https://t.me/RsgAveron/112">Get</a></td></tr>
-            <tr><td>LogoMaker Pro</td><td><a href="https://t.me/RsgAveron/114">Get</a></td></tr>
-          </table>
-        </div>
-      </div>
+    function updateScore(newScore) {
+      score = newScore;
+      scoreDisplay.textContent = score;
+      localStorage.setItem('worthScore', score);
 
-      <div class="category">
-        <button class="toggle-button" onclick="toggleSection('overlays-table')">Edit Audios</button>
-        <div id="overlays-table" class="resource-table">
-          <table>
-            <tr><th>Name</th><th>Action</th></tr>
-            <tr><td>Overlay 1</td><td><a href="https://t.me/link13">Get</a></td></tr>
-            <tr><td>Overlay 2</td><td><a href="https://t.me/link14">Get</a></td></tr>
-            <tr><td>Overlay 3</td><td><a href="https://t.me/link15">Get</a></td></tr>
-          </table>
-        </div>
-      </div>
+      // Update remark with fade effect
+      const remark = getRemark(score);
+      remarkDisplay.style.opacity = 0;
+      setTimeout(() => {
+        remarkDisplay.textContent = remark.text;
+        remarkDisplay.style.color = remark.color;
+        remarkDisplay.style.opacity = 1;
+      }, 300);
+    }
 
-      <div class="category">
-        <button class="toggle-button" onclick="toggleSection('texts-table')">Text Effect overlays</button>
-        <div id="texts-table" class="resource-table">
-          <table>
-            <tr><th>Name</th><th>Action</th></tr>
-            <tr><td>Text Style 1</td><td><a href="https://t.me/link16">Get</a></td></tr>
-            <tr><td>Text Style 2</td><td><a href="https://t.me/link17">Get</a></td></tr>
-            <tr><td>Text Style 3</td><td><a href="https://t.me/link18">Get</a></td></tr>
-          </table>
-        </div>
-      </div>
+    // Initial remark
+    const initRemark = getRemark(score);
+    remarkDisplay.textContent = initRemark.text;
+    remarkDisplay.style.color = initRemark.color;
 
-      <div class="category">
-        <button class="toggle-button" onclick="toggleSection('misc-table')">NCS background Musics</button>
-        <div id="misc-table" class="resource-table">
-          <table>
-            <tr><th>Name</th><th>Action</th></tr>
-            <tr><td>Misc 1</td><td><a href="https://t.me/link19">Get</a></td></tr>
-            <tr><td>Misc 2</td><td><a href="https://t.me/link20">Get</a></td></tr>
-            <tr><td>Misc 3</td><td><a href="https://t.me/link21">Get</a></td></tr>
-          </table>
-        </div>
-      </div>
+    // Theme handling
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('theme', theme);
+      themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+      themeToggle.setAttribute('aria-label', `Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`);
+    }
 
-    <div class="about">
-      <h2>About Me</h2>
-      <p>I'm Averon, a passionate video editor who transforms ordinary visuals into cool visuals. I edit when I'm in the mood. Tools I use: CapCut, Alight Motion, Picsart, and other mobile apps.</p>
-    </div>
+    const savedTheme = localStorage.getItem('theme');
+    let currentTheme = savedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    setTheme(currentTheme);
 
-    <div class="info">
-      <h2>Info</h2>
-      <p>You can't directly download any material from this web page. Here you found the link of material that redirect you to my Telegram Channel, After that you can easily Download the Material you want to Download.</p>
-    </div>
-    
-    <div class="info">
-      <h2>Disclaimer</h2>
-      <p> All materials provided on this website, including sound effects, video effects, transitions, presets, overlays, text styles, and miscellaneous items, are not originally created by me. These materials have been sourced from the internet. I do not claim ownership of these resources, and they are shared here for educational and personal use only. Use them at your own risk, and ensure compliance with applicable laws and regulations.</p>
-    </div>
+    themeToggle.addEventListener('click', () => {
+      currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      setTheme(currentTheme);
+    });
 
-    <footer>
-      Created by <strong>RSG™</strong> - Averon
-    </footer>
-  </div>
+    // Predefined buttons
+    document.querySelectorAll('.buttons button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const value = parseInt(btn.dataset.value);
+        updateScore(score + value);
+      });
+    });
 
-  <script src="script.js"></script>
+    // Manual apply
+    applyBtn.addEventListener('click', () => {
+      const val = parseInt(manualInput.value);
+      if (!isNaN(val)) {
+        updateScore(score + val);
+        manualInput.value = '';
+      }
+    });
+
+    // Enter key support
+    manualInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') applyBtn.click();
+    });
+  </script>
 </body>
 </html>
