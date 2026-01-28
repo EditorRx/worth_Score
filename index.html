@@ -1,11 +1,10 @@
-</body>
-</html>
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Worth Score</title>
+  <title>My Worth Score</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
       --bg: #f8f9fa;
@@ -14,6 +13,8 @@
       --accent: #0d6efd;
       --accent-hover: #0b5ed7;
       --gray: #6c757d;
+      --chart-line: #0d6efd;
+      --chart-bg: rgba(13, 110, 253, 0.1);
     }
     [data-theme="dark"] {
       --bg: #121212;
@@ -22,6 +23,8 @@
       --accent: #4dabf7;
       --accent-hover: #3395ff;
       --gray: #adb5bd;
+      --chart-line: #4dabf7;
+      --chart-bg: rgba(77, 171, 247, 0.2);
     }
     body {
       margin: 0;
@@ -29,9 +32,6 @@
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
       transition: background 0.3s, color 0.3s;
     }
     .container {
@@ -40,46 +40,17 @@
       padding: 2.5rem 2rem;
       border-radius: 16px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-      max-width: 400px;
+      max-width: 500px;
       width: 90%;
+      margin: 2rem auto;
       transition: background 0.3s;
     }
-    h1 {
-      margin: 0 0 1rem;
-      font-size: 2.2rem;
-      color: var(--accent);
-    }
-    #score {
-      font-size: 5rem;
-      font-weight: bold;
-      margin: 0.5rem 0;
-      min-width: 150px;
-      display: inline-block;
-    }
-    #remark {
-      font-size: 1.4rem;
-      font-weight: bold;
-      min-height: 4rem;
-      margin: 1rem 0 2rem;
-      padding: 0 1rem;
-      opacity: 1;
-      transition: opacity 0.6s ease, color 0.4s;
-    }
-    .buttons {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 0.8rem;
-      margin: 1.5rem 0;
-    }
+    h1 { margin: 0 0 1rem; font-size: 2.2rem; color: var(--accent); }
+    #score { font-size: 5rem; font-weight: bold; margin: 0.5rem 0; }
+    #remark { font-size: 1.4rem; font-weight: bold; min-height: 4rem; margin: 1rem 0 2rem; transition: opacity 0.6s ease, color 0.4s; }
+    .buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.8rem; margin: 1.5rem 0; }
     button {
-      padding: 0.8rem 1.2rem;
-      font-size: 1.1rem;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s;
-      min-width: 70px;
+      padding: 0.8rem 1.2rem; font-size: 1.1rem; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s; min-width: 70px;
     }
     .plus { background: #198754; color: white; }
     .plus:hover { background: #157347; }
@@ -88,30 +59,18 @@
     .manual-btn { background: var(--accent); color: white; }
     .manual-btn:hover { background: var(--accent-hover); }
     .theme-toggle {
-      position: fixed;
-      top: 1rem;
-      right: 1rem;
-      background: none;
-      border: none;
-      font-size: 1.8rem;
-      cursor: pointer;
-      color: var(--gray);
+      position: fixed; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.8rem; cursor: pointer; color: var(--gray);
     }
-    .manual-input {
-      display: flex;
-      justify-content: center;
-      gap: 0.5rem;
-      margin-top: 1rem;
-    }
+    .manual-input { display: flex; justify-content: center; gap: 0.5rem; margin-top: 1rem; }
     input[type="number"] {
-      width: 100px;
-      padding: 0.6rem;
-      font-size: 1.1rem;
-      border: 1px solid var(--gray);
-      border-radius: 8px;
-      background: var(--bg);
-      color: var(--text);
+      width: 100px; padding: 0.6rem; font-size: 1.1rem; border: 1px solid var(--gray); border-radius: 8px; background: var(--bg); color: var(--text);
     }
+    #analytics { margin-top: 3rem; padding: 1.5rem; background: var(--card); border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
+    #analytics h2 { margin: 0 0 1rem; color: var(--accent); }
+    #period { padding: 0.6rem; font-size: 1rem; border-radius: 8px; background: var(--bg); color: var(--text); border: 1px solid var(--gray); margin-bottom: 1rem; }
+    canvas { max-width: 100%; height: 250px !important; background: var(--bg); border-radius: 8px; }
+    #netChange, #progressRemark { font-size: 1.2rem; margin: 1rem 0; font-weight: bold; }
+    #progressRemark { min-height: 3rem; }
   </style>
 </head>
 <body>
@@ -119,7 +78,7 @@
   <button class="theme-toggle" aria-label="Toggle theme">🌙</button>
 
   <div class="container">
-    <h1>Worth Score</h1>
+    <h1>My Worth Score</h1>
     <div id="score">0</div>
     <div id="remark"></div>
 
@@ -141,6 +100,19 @@
       <input type="number" id="manualValue" placeholder="Enter value" />
       <button class="manual-btn" id="applyManual">Apply</button>
     </div>
+
+    <div id="analytics">
+      <h2>Analytics 📈</h2>
+      <select id="period">
+        <option value="1day">Last 24 Hours</option>
+        <option value="7days" selected>Last 7 Days</option>
+        <option value="30days">Last 30 Days</option>
+        <option value="365days">Last Year</option>
+      </select>
+      <canvas id="scoreChart"></canvas>
+      <div id="netChange"></div>
+      <div id="progressRemark"></div>
+    </div>
   </div>
 
   <script>
@@ -149,16 +121,25 @@
     const manualInput = document.getElementById('manualValue');
     const applyBtn = document.getElementById('applyManual');
     const themeToggle = document.querySelector('.theme-toggle');
+    const periodSelect = document.getElementById('period');
+    const netChangeEl = document.getElementById('netChange');
+    const progressRemarkEl = document.getElementById('progressRemark');
 
     let score = parseInt(localStorage.getItem('worthScore')) || 0;
     scoreDisplay.textContent = score;
 
-    // Remark arrays (random savage & fun)
+    let history = JSON.parse(localStorage.getItem('worthHistory')) || [];
+    if (history.length === 0) {
+      history.push({ time: Date.now(), score });
+      localStorage.setItem('worthHistory', JSON.stringify(history));
+    }
+
+    // Existing remark arrays (Sintu removed)
     const highRemarks = [
-      "Wah Sintu bhai! Tu toh legend ban gaya! 🔥👑",
+      "Wah bhai! Tu toh legend ban gaya! 🔥👑",
       "Score dekh ke dil khush! Tu baap hai! 😎💰",
       "King level unlocked! Jealous ho raha hu! 🌟",
-      "Tu toh superstar hai bhai! Keep shining! 🚀"
+      "Tu toh superstar hai! Keep shining! 🚀"
     ];
     const averageRemarks = [
       "Theek-thaak hai... lekin aur mehnat kar! 💪",
@@ -169,37 +150,37 @@
     const lowRemarks = [
       "Arre o bewakoof! Negative? Beizzati shuru! 🤡",
       "Tu toh zero se bhi neeche! Fail ho gaya bhai! 😭",
-      "Sintu, is score ke saath tu toh single hi marega forever! 😜",
+      "Is score ke saath tu toh single hi marega forever! 😜",
       "Bhai, gym ja, diet kar... warna roast continue! 🔥"
     ];
     const brutalRemarks = [
       "Itna low? Tu toh life ka burden hai! 😂😤",
       "Score dekh ke hasi aa rahi! Tu pure joke hai! 🤣",
-      "Sintu bhai, road pe bheek mangne ki tayyari kar le! 👻",
+      "Bhai, road pe bheek mangne ki tayyari kar le! 👻",
       "Tu toh flop actor hai life mein! Oscar nahi milega! 🎭🔥",
       "Bhai, is level pe tu toh invisible ho gaya! Koi dekhta bhi nahi! 🫥"
     ];
 
-    function getRemark(score) {
-      let remarks;
-      let color;
+    function getDailyRemark(scoreVal) {
+      if (scoreVal >= 100) return highRemarks[Math.floor(Math.random() * highRemarks.length)];
+      if (scoreVal >= 0) return averageRemarks[Math.floor(Math.random() * averageRemarks.length)];
+      if (scoreVal >= -50) return lowRemarks[Math.floor(Math.random() * lowRemarks.length)];
+      return brutalRemarks[Math.floor(Math.random() * brutalRemarks.length)];
+    }
 
-      if (score >= 100) {
-        remarks = highRemarks;
-        color = '#198754'; // green
-      } else if (score >= 0) {
-        remarks = averageRemarks;
-        color = '#ffc107'; // yellow
-      } else if (score >= -50) {
-        remarks = lowRemarks;
-        color = '#dc3545'; // red
-      } else {
-        remarks = brutalRemarks;
-        color = '#c82333'; // dark red
-      }
+    // Progress remark for analytics
+    const progressRemarks = {
+      bigWin: ["Epic comeback! Tu toh unstoppable hai bhai! 🔥🚀", "Massive gain! King mode on! 👑💪"],
+      win: ["Solid progress! Keep grinding! 👍📈", "Score upar! Badhiya ja raha hai! 😎"],
+      smallLoss: ["Thoda dip aaya... no worries, bounce back kar! 💪😤", "Slight loss, but tu recover kar lega! 🔥"],
+      bigLoss: ["Bhai, itna loss? Jaan laga de warna beizzati continue! 🤡😭", "Score gir raha hai! Wake up, grind mode on! 💥"]
+    };
 
-      const randomRemark = remarks[Math.floor(Math.random() * remarks.length)];
-      return { text: randomRemark, color };
+    function getProgressRemark(net) {
+      if (net > 50) return progressRemarks.bigWin[Math.floor(Math.random() * progressRemarks.bigWin.length)];
+      if (net > 0) return progressRemarks.win[Math.floor(Math.random() * progressRemarks.win.length)];
+      if (net > -20) return progressRemarks.smallLoss[Math.floor(Math.random() * progressRemarks.smallLoss.length)];
+      return progressRemarks.bigLoss[Math.floor(Math.random() * progressRemarks.bigLoss.length)];
     }
 
     function updateScore(newScore) {
@@ -207,20 +188,106 @@
       scoreDisplay.textContent = score;
       localStorage.setItem('worthScore', score);
 
-      // Update remark with fade effect
-      const remark = getRemark(score);
+      // Add to history
+      history.push({ time: Date.now(), score: newScore });
+      if (history.length > 2000) history.shift(); // limit size
+      localStorage.setItem('worthHistory', JSON.stringify(history));
+
+      // Update main remark
+      const mainRemark = getDailyRemark(score);
       remarkDisplay.style.opacity = 0;
       setTimeout(() => {
-        remarkDisplay.textContent = remark.text;
-        remarkDisplay.style.color = remark.color;
+        remarkDisplay.textContent = mainRemark;
+        remarkDisplay.style.color = score >= 100 ? '#198754' : score >= 0 ? '#ffc107' : score >= -50 ? '#dc3545' : '#c82333';
         remarkDisplay.style.opacity = 1;
       }, 300);
+
+      // Re-render chart
+      renderChart(periodSelect.value);
     }
 
-    // Initial remark
-    const initRemark = getRemark(score);
-    remarkDisplay.textContent = initRemark.text;
-    remarkDisplay.style.color = initRemark.color;
+    // Chart setup
+    let chart;
+    function renderChart(period) {
+      let msBack;
+      if (period === '1day') msBack = 24 * 60 * 60 * 1000;
+      else if (period === '7days') msBack = 7 * 24 * 60 * 60 * 1000;
+      else if (period === '30days') msBack = 30 * 24 * 60 * 60 * 1000;
+      else msBack = 365 * 24 * 60 * 60 * 1000;
+
+      const now = Date.now();
+      const filtered = history.filter(h => h.time >= now - msBack).sort((a, b) => a.time - b.time);
+
+      const labels = filtered.map(h => new Date(h.time).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }));
+      const data = filtered.map(h => h.score);
+
+      netChangeEl.textContent = '';
+      progressRemarkEl.textContent = '';
+
+      if (filtered.length < 2) {
+        netChangeEl.textContent = "Not enough data yet! Update your score daily to see progress.";
+        progressRemarkEl.textContent = "Start updating daily – graph will appear soon! 📅";
+      } else {
+        const net = data[data.length - 1] - data[0];
+        netChangeEl.textContent = `Net Change in this period: \( {net > 0 ? '+' : ''} \){net}`;
+        netChangeEl.style.color = net > 0 ? '#198754' : net < 0 ? '#dc3545' : '#6c757d';
+
+        progressRemarkEl.textContent = getProgressRemark(net);
+        progressRemarkEl.style.color = net > 0 ? '#198754' : net < 0 ? '#dc3545' : '#6c757d';
+      }
+
+      if (chart) chart.destroy();
+      chart = new Chart(document.getElementById('scoreChart'), {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Worth Score Over Time',
+            data,
+            borderColor: 'var(--chart-line)',
+            backgroundColor: 'var(--chart-bg)',
+            tension: 0.3,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: { beginAtZero: false, title: { display: true, text: 'Score' } },
+            x: { title: { display: true, text: 'Time' } }
+          },
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
+
+    // Initial render
+    const initRemark = getDailyRemark(score);
+    remarkDisplay.textContent = initRemark;
+    remarkDisplay.style.color = score >= 100 ? '#198754' : score >= 0 ? '#ffc107' : score >= -50 ? '#dc3545' : '#c82333';
+    renderChart('7days');
+
+    // Event listeners
+    periodSelect.addEventListener('change', () => renderChart(periodSelect.value));
+
+    document.querySelectorAll('.buttons button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const value = parseInt(btn.dataset.value);
+        updateScore(score + value);
+      });
+    });
+
+    applyBtn.addEventListener('click', () => {
+      const val = parseInt(manualInput.value);
+      if (!isNaN(val)) {
+        updateScore(score + val);
+        manualInput.value = '';
+      }
+    });
+
+    manualInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') applyBtn.click();
+    });
 
     // Theme handling
     function setTheme(theme) {
@@ -228,6 +295,7 @@
       localStorage.setItem('theme', theme);
       themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
       themeToggle.setAttribute('aria-label', `Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`);
+      if (chart) chart.update(); // refresh chart colors
     }
 
     const savedTheme = localStorage.getItem('theme');
@@ -237,28 +305,6 @@
     themeToggle.addEventListener('click', () => {
       currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
       setTheme(currentTheme);
-    });
-
-    // Predefined buttons
-    document.querySelectorAll('.buttons button').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const value = parseInt(btn.dataset.value);
-        updateScore(score + value);
-      });
-    });
-
-    // Manual apply
-    applyBtn.addEventListener('click', () => {
-      const val = parseInt(manualInput.value);
-      if (!isNaN(val)) {
-        updateScore(score + val);
-        manualInput.value = '';
-      }
-    });
-
-    // Enter key support
-    manualInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') applyBtn.click();
     });
   </script>
 </body>
